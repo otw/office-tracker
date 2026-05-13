@@ -23,6 +23,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
 class RTOBaseSensor(SensorEntity):
     """Base sensor for RTO Tracker."""
+    _attr_has_entity_name = True
+
     def __init__(self, rto_data, entry_id):
         self._rto_data = rto_data
         self._entry_id = entry_id
@@ -33,7 +35,7 @@ class RTOBaseSensor(SensorEntity):
     def device_info(self) -> DeviceInfo:
         """Return device information about this entity."""
         return DeviceInfo(
-            identifiers={(DOMAIN, self._entry_id)},
+            identifiers={(DOMAIN, self._rto_data["entity_id"])},
             name="RTO Tracker",
             manufacturer="Home Assistant Community",
         )
