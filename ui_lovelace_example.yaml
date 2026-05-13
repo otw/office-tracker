@@ -1,0 +1,48 @@
+type: vertical-stack
+cards:
+  - type: custom:mushroom-title-card
+    title: Return To Office
+  - type: horizontal-stack
+    cards:
+      - type: custom:mushroom-template-card
+        primary: 12-Week Rolling
+        secondary: '{{ states(''sensor.rto_12_week_count'') }} / 24 Days'
+        icon: mdi:briefcase-check
+        entity: sensor.rto_12_week_count
+        icon_color: |-
+          {% set count = states('sensor.rto_12_week_count') | int(0) %}
+          {% if count >= 24 %} green
+          {% elif count >= 18 %} orange
+          {% else %} red
+          {% endif %}
+        layout: vertical
+      - type: custom:mushroom-template-card
+        primary: Current Quarter
+        secondary: '{{ states(''sensor.rto_quarter_count'') }} / 24 Days'
+        icon: mdi:calendar-check
+        entity: sensor.rto_quarter_count
+        icon_color: |-
+          {% set count = states('sensor.rto_quarter_count') | int(0) %}
+          {% if count >= 24 %} green
+          {% elif count >= 18 %} orange
+          {% else %} red
+          {% endif %}
+        layout: vertical
+  - type: horizontal-stack
+    cards:
+      - type: custom:mushroom-template-card
+        primary: Add Office Day
+        icon: mdi:domain
+        icon_color: blue
+        layout: vertical
+        tap_action:
+          action: call-service
+          service: rto_tracker.add_office_day
+      - type: custom:mushroom-template-card
+        primary: Add Vacation
+        icon: mdi:palm-tree
+        icon_color: cyan
+        layout: vertical
+        tap_action:
+          action: call-service
+          service: rto_tracker.add_vacation_day

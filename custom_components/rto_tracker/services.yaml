@@ -1,0 +1,47 @@
+add_vacation_day:
+  name: Add Vacation Day
+  description: Adds a specific date as a vacation day to count towards your RTO requirement.
+  fields:
+    date:
+      name: Date
+      description: The date to add (YYYY-MM-DD). Defaults to today if omitted.
+      required: false
+      example: "2023-10-15"
+      selector:
+        text:
+
+remove_vacation_day:
+  name: Remove Vacation Day
+  description: Removes a specific date from your vacation days.
+  fields:
+    date:
+      name: Date
+      description: The date to remove (YYYY-MM-DD). Defaults to today if omitted.
+      required: false
+      example: "2023-10-15"
+      selector:
+        text:
+
+add_office_day:
+  name: Add Office Day
+  description: Manually adds a specific date as an office day (e.g. if location tracking failed).
+  fields:
+    date:
+      name: Date
+      description: The date to add (YYYY-MM-DD). Defaults to today if omitted.
+      required: false
+      example: "2023-10-15"
+      selector:
+        text:
+
+remove_office_day:
+  name: Remove Office Day
+  description: Manually removes a specific date from your tracked office days.
+  fields:
+    date:
+      name: Date
+      description: The date to remove (YYYY-MM-DD). Defaults to today if omitted.
+      required: false
+      example: "2023-10-15"
+      selector:
+        text:
