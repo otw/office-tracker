@@ -45,3 +45,41 @@ remove_office_day:
       example: "2023-10-15"
       selector:
         text:
+
+add_vacation_range:
+  name: Add Vacation Range
+  description: Manually adds a range of vacation days.
+  fields:
+    start_date:
+      name: Start Date
+      description: The first day of the vacation (YYYY-MM-DD).
+      required: true
+      example: "2023-10-25"
+      selector:
+        date:
+    end_date:
+      name: End Date
+      description: The last day of the vacation (YYYY-MM-DD).
+      required: true
+      example: "2023-10-31"
+      selector:
+        date:
+
+add_office_day_range:
+  name: Add Office Day Range
+  description: Manually adds a range of office days (automatically skips weekends).
+  fields:
+    start_date:
+      name: Start Date
+      description: The first day in the office (YYYY-MM-DD).
+      required: true
+      example: "2023-10-25"
+      selector:
+        date:
+    end_date:
+      name: End Date
+      description: The last day in the office (YYYY-MM-DD).
+      required: true
+      example: "2023-10-31"
+      selector:
+        date:

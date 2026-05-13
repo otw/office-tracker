@@ -168,6 +168,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             date_str = call.data.get("date", datetime.now().strftime("%Y-%m-%d"))
             async_remove_date(date_str, "vacation_days")
             
+        async def handle_add_vacation_range(call: ServiceCall):
+            start = datetime.strptime(call.data.get("start_date"), "%Y-%m-%d")
+            end = datetime.strptime(call.data.get("end_date"), "%Y-%m-%d")
+            delta = end - start
+            for i in range(delta.days + 1):
+                day = start + timedelta(days=i)
+                async_add_date(day.strftime("%Y-%m-%d"), "vacation_days")
+            
         async def handle_add_office(call: ServiceCall):
             date_str = call.data.get("date", datetime.now().strftime("%Y-%m-%d"))
             async_add_date(date_str, "office_days")
@@ -176,10 +184,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             date_str = call.data.get("date", datetime.now().strftime("%Y-%m-%d"))
             async_remove_date(date_str, "office_days")
 
+        async def handle_add_office_range(call: ServiceCall):
+            start = datetime.strptime(call.data.get("start_date"), "%Y-%m-%d")
+            end = datetime.strptime(call.data.get("end_date"), "%Y-%m-%d")
+            delta = end - start
+            for i in range(delta.days + 1):
+                day = start + timedelta(days=i)
+                # Skip weekends automatically for convenience
+                if day.weekday() < 5:
+                    async_add_date(day.strftime("%Y-%m-%d"), "office_days")
+
         hass.services.async_register(DOMAIN, "add_vacation_day", handle_add_vacation)
         hass.services.async_register(DOMAIN, "remove_vacation_day", handle_remove_vacation)
+        hass.services.async_register(DOMAIN, "add_vacation_range", handle_add_vacation_range)
         hass.services.async_register(DOMAIN, "add_office_day", handle_add_office)
         hass.services.async_register(DOMAIN, "remove_office_day", handle_remove_office)
+        hass.services.async_register(DOMAIN, "add_office_day_range", handle_add_office_range)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 

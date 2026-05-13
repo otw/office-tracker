@@ -1,0 +1,45 @@
+log_rto_vacation_range:
+  alias: "Log Vacation Range"
+  icon: mdi:palm-tree
+  description: "Logs a range of dates as Vacation days for RTO Tracker."
+  fields:
+    start_date:
+      name: "Start Date"
+      description: "The first day of your vacation."
+      required: true
+      selector:
+        date: {}
+    end_date:
+      name: "End Date"
+      description: "The last day of your vacation."
+      required: true
+      selector:
+        date: {}
+  sequence:
+    - service: rto_tracker.add_vacation_range
+      data:
+        start_date: "{{ start_date }}"
+        end_date: "{{ end_date }}"
+
+log_rto_office_range:
+  alias: "Log Office Range"
+  icon: mdi:domain
+  description: "Logs a range of dates as Office days (skipping weekends)."
+  fields:
+    start_date:
+      name: "Start Date"
+      description: "The first day in the office."
+      required: true
+      selector:
+        date: {}
+    end_date:
+      name: "End Date"
+      description: "The last day in the office."
+      required: true
+      selector:
+        date: {}
+  sequence:
+    - service: rto_tracker.add_office_day_range
+      data:
+        start_date: "{{ start_date }}"
+        end_date: "{{ end_date }}"
