@@ -52,7 +52,7 @@ cards:
         primary: Log Office Range
         icon: mdi:domain
         icon_color: blue
-        entity: script.log_rto_office_range
+        entity: script.log_office_range
         layout: vertical
         tap_action:
           action: more-info
@@ -60,7 +60,7 @@ cards:
         primary: Log Vacation Range
         icon: mdi:palm-tree
         icon_color: cyan
-        entity: script.log_rto_vacation_range
+        entity: script.log_vacation_range
         layout: vertical
         tap_action:
           action: more-info
