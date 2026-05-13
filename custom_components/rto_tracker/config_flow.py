@@ -31,6 +31,9 @@ class RTOTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Required(CONF_OFFICE_ZONES): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="zone", multiple=True)
             ),
+            vol.Optional("required_hours", default=0.0): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0.0, max=24.0, step=0.1, mode="box")
+            )
         })
 
         return self.async_show_form(

@@ -6,7 +6,8 @@
         "description": "Select the person you want to track and the specific office zones they need to visit.",
         "data": {
           "entity_id": "Person",
-          "office_zones": "Office Zones"
+          "office_zones": "Office Zones",
+          "required_hours": "Required Hours in Office"
         }
       }
     },
