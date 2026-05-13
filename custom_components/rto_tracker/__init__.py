@@ -11,7 +11,7 @@ DOMAIN = "rto_tracker"
 _LOGGER = logging.getLogger(__name__)
 
 CONF_OFFICE_ZONES = "office_zones"
-PLATFORMS: list[Platform] = [Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.CALENDAR]
 
 STORAGE_VERSION = 1
 
@@ -21,6 +21,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entity_id = entry.data[CONF_ENTITY_ID]
     office_zones = entry.data[CONF_OFFICE_ZONES]
     required_hours = entry.data.get("required_hours", 0.0)
+    target_days = entry.data.get("target_days", 2)
+    holiday_calendar = entry.data.get("holiday_calendar")
     
     storage_key = f"{DOMAIN}_{entry.entry_id}.storage"
     store = Store(hass, STORAGE_VERSION, storage_key)
@@ -28,12 +30,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Load existing data
     data = await store.async_load()
     if data is None:
-        data = {"office_days": [], "vacation_days": []}
+        data = {"office_days": [], "vacation_days": [], "holiday_days": []}
         
-    if "office_days" not in data:
-        data["office_days"] = []
-    if "vacation_days" not in data:
-        data["vacation_days"] = []
+    for key in ["office_days", "vacation_days", "holiday_days"]:
+        if key not in data:
+            data[key] = []
 
     # New tracker state for cumulative time
     tracker_state = {
@@ -51,6 +52,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "entity_id": entity_id,
         "office_zones": office_zones,
         "required_hours": required_hours,
+        "target_days": target_days,
+        "holiday_calendar": holiday_calendar,
         "listeners": []
     }
 
@@ -66,14 +69,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if date_str not in hass.data[DOMAIN][entry.entry_id]["data"][date_type]:
             hass.data[DOMAIN][entry.entry_id]["data"][date_type].append(date_str)
             hass.async_create_task(async_save_data())
-            _LOGGER.info(f"Added {date_str} to {date_type}")
 
     @callback
     def async_remove_date(date_str, date_type):
         if date_str in hass.data[DOMAIN][entry.entry_id]["data"][date_type]:
             hass.data[DOMAIN][entry.entry_id]["data"][date_type].remove(date_str)
             hass.async_create_task(async_save_data())
-            _LOGGER.info(f"Removed {date_str} from {date_type}")
 
     @callback
     def check_office_time(*args):
@@ -98,9 +99,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             t_state["daily_seconds"] += duration
             t_state["last_entry_ts"] = now_ts # reset anchor to now
             
+        # Notify listeners so Live Sensor updates
+        for listener in hass.data[DOMAIN][entry.entry_id]["listeners"]:
+            listener()
+            
         # Check if threshold met
         if t_state["daily_seconds"] >= required_hours * 3600:
             async_add_date(today_str, "office_days")
+
+        # Holiday check
+        if holiday_calendar:
+            cal_state = hass.states.get(holiday_calendar)
+            if cal_state and cal_state.state == "on":
+                async_add_date(today_str, "holiday_days")
 
     @callback
     def async_location_changed(event):
@@ -134,12 +145,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             check_office_time()
             t_state["is_currently_in_office"] = False
             t_state["last_entry_ts"] = None
+            for listener in hass.data[DOMAIN][entry.entry_id]["listeners"]:
+                listener()
 
     entry.async_on_unload(
         async_track_state_change_event(hass, [entity_id], async_location_changed)
     )
     
-    # Run a periodic check every 5 minutes to credit days even if they don't leave the zone
+    # Run a periodic check every 5 minutes to credit days and trigger live sensor updates
     entry.async_on_unload(
         async_track_time_interval(hass, check_office_time, timedelta(minutes=5))
     )

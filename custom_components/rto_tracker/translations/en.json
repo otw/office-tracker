@@ -3,11 +3,13 @@
     "step": {
       "user": {
         "title": "Setup RTO Tracker",
-        "description": "Select the person you want to track and the specific office zones they need to visit.",
+        "description": "Configure your Return To Office tracking parameters. Optional: select a Holiday Calendar to automatically credit public holidays.",
         "data": {
           "entity_id": "Person",
           "office_zones": "Office Zones",
-          "required_hours": "Required Hours in Office"
+          "required_hours": "Required Hours in Office",
+          "target_days": "Target Days per Week",
+          "holiday_calendar": "Public Holiday Calendar (Optional)"
         }
       }
     },

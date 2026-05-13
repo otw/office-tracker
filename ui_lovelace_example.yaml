@@ -6,28 +6,46 @@ cards:
     cards:
       - type: custom:mushroom-template-card
         primary: 12-Week Rolling
-        secondary: '{{ states(''sensor.rto_12_week_count'') }} / 24 Days'
+        secondary: >-
+          {{ states('sensor.rto_12_week_count') }} / {{ state_attr('sensor.rto_12_week_count', 'target') | default(24) }} Days
         icon: mdi:briefcase-check
         entity: sensor.rto_12_week_count
-        icon_color: |-
+        icon_color: >-
           {% set count = states('sensor.rto_12_week_count') | int(0) %}
-          {% if count >= 24 %} green
-          {% elif count >= 18 %} orange
+          {% set target = state_attr('sensor.rto_12_week_count', 'target') | int(24) %}
+          {% if count >= target %} green
+          {% elif count >= (target * 0.75) %} orange
           {% else %} red
           {% endif %}
         layout: vertical
       - type: custom:mushroom-template-card
         primary: Current Quarter
-        secondary: '{{ states(''sensor.rto_quarter_count'') }} / 24 Days'
+        secondary: >-
+          {{ states('sensor.rto_quarter_count') }} / {{ state_attr('sensor.rto_quarter_count', 'target') | default(26) }} Days
         icon: mdi:calendar-check
         entity: sensor.rto_quarter_count
-        icon_color: |-
+        icon_color: >-
           {% set count = states('sensor.rto_quarter_count') | int(0) %}
-          {% if count >= 24 %} green
-          {% elif count >= 18 %} orange
+          {% set target = state_attr('sensor.rto_quarter_count', 'target') | int(26) %}
+          {% if count >= target %} green
+          {% elif count >= (target * 0.75) %} orange
           {% else %} red
           {% endif %}
         layout: vertical
+  - type: custom:mushroom-template-card
+    primary: Today's Office Time
+    secondary: >-
+      {{ states('sensor.rto_time_in_office_today') }} / {{ state_attr('sensor.rto_time_in_office_today', 'required_hours') }} Hours
+    icon: mdi:timer-sand
+    entity: sensor.rto_time_in_office_today
+    icon_color: >-
+      {% set hrs = states('sensor.rto_time_in_office_today') | float(0) %}
+      {% set req = state_attr('sensor.rto_time_in_office_today', 'required_hours') | float(0) %}
+      {% if req == 0 %} green
+      {% elif hrs >= req %} green
+      {% elif state_attr('sensor.rto_time_in_office_today', 'is_in_office') %} orange
+      {% else %} grey
+      {% endif %}
   - type: horizontal-stack
     cards:
       - type: custom:mushroom-template-card

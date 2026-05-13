@@ -15,12 +15,11 @@ class RTOTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            # We enforce one instance of the integration for now
             await self.async_set_unique_id(user_input[CONF_ENTITY_ID])
             self._abort_if_unique_id_configured()
 
             return self.async_create_entry(
-                title=f"RTO Tracker ({user_input[CONF_ENTITY_ID]})", 
+                title=f"RTO Tracker", 
                 data=user_input
             )
 
@@ -33,6 +32,12 @@ class RTOTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
             vol.Optional("required_hours", default=0.0): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=0.0, max=24.0, step=0.1, mode="box")
+            ),
+            vol.Required("target_days", default=2): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=1, max=7, step=1, mode="box")
+            ),
+            vol.Optional("holiday_calendar"): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="calendar")
             )
         })
 

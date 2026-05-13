@@ -1,31 +1,25 @@
-- alias: "RTO Daily Tracker Notification"
-  trigger:
-    - platform: time
-      at: "18:00:00"
-  condition:
-    # Only run on weekdays
-    - condition: time
-      weekday:
-        - mon
-        - tue
-        - wed
-        - thu
-        - fri
-  action:
-    - variables:
-        rto_12_week: "{{ states('sensor.rto_12_week_count') | int(0) }}"
-        rto_quarter: "{{ states('sensor.rto_quarter_count') | int(0) }}"
-        warning_msg: >
-          {% if rto_12_week < 24 %}
-            ⚠️ WARNING: You are below the 2 days/week average over the last 12 weeks. (Current: {{ rto_12_week }} / 24).
-          {% else %}
-            ✅ You are meeting the 2 days/week requirement!
-          {% endif %}
-    - service: notify.notify
-      data:
-        title: "RTO Status Update"
-        message: >
-          Office days (Last 12 Weeks): {{ rto_12_week }}
-          Office days (This Quarter): {{ rto_quarter }}
-          
-          {{ warning_msg }}
+alias: "RTO Tracker Notification"
+description: "Sends a daily notification if RTO 12-week count is falling behind target."
+mode: single
+trigger:
+  - platform: time
+    at: "18:00:00"
+condition:
+  - condition: time
+    weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+  - condition: template
+    value_template: >-
+      {{ states('sensor.rto_12_week_count') | int(0) < state_attr('sensor.rto_12_week_count', 'target') | int(24) }}
+action:
+  - service: notify.notify
+    data:
+      title: "⚠️ RTO Warning"
+      message: >-
+        You are currently at {{ states('sensor.rto_12_week_count') }} days for your 12-week rolling window.
+        Your target is {{ state_attr('sensor.rto_12_week_count', 'target') }} days. 
+        Please plan to head into the office soon to stay compliant!
