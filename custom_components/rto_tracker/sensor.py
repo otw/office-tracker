@@ -2,30 +2,40 @@ import logging
 from datetime import datetime, timedelta
 
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_time_change
+from homeassistant.helpers.entity import DeviceInfo
 
 from . import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_setup_platform(hass: HomeAssistant, config, async_add_entities, discovery_info=None):
-    """Set up the RTO sensors."""
-    if discovery_info is None:
-        return
-
-    data = hass.data[DOMAIN]
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
+    """Set up the RTO sensors from a config entry."""
+    data = hass.data[DOMAIN][entry.entry_id]
+    
     async_add_entities([
-        RTO12WeekSensor(data),
-        RTOQuarterSensor(data)
+        RTO12WeekSensor(data, entry.entry_id),
+        RTOQuarterSensor(data, entry.entry_id)
     ])
 
 class RTOBaseSensor(SensorEntity):
     """Base sensor for RTO Tracker."""
-    def __init__(self, rto_data):
+    def __init__(self, rto_data, entry_id):
         self._rto_data = rto_data
+        self._entry_id = entry_id
         self._state = 0
         self._attr_native_value = 0
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device information about this entity."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._entry_id)},
+            name="RTO Tracker",
+            manufacturer="Home Assistant Community",
+        )
 
     async def async_added_to_hass(self):
         """Register callbacks when entity is added."""
@@ -61,7 +71,7 @@ class RTO12WeekSensor(RTOBaseSensor):
         
     @property
     def unique_id(self):
-        return "rto_tracker_12_week_count"
+        return f"{self._entry_id}_12_week_count"
         
     @property
     def native_value(self):
@@ -100,7 +110,7 @@ class RTOQuarterSensor(RTOBaseSensor):
         
     @property
     def unique_id(self):
-        return "rto_tracker_quarter_count"
+        return f"{self._entry_id}_quarter_count"
         
     @property
     def native_value(self):
