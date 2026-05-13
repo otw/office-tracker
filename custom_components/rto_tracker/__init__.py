@@ -24,7 +24,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     target_days = entry.data.get("target_days", 2)
     holiday_calendar = entry.data.get("holiday_calendar")
     
-    storage_key = f"{DOMAIN}_{entry.entry_id}.storage"
+    # Use entity_id for storage key so data persists across reinstalls
+    storage_key = f"{DOMAIN}_{entity_id}.storage"
     store = Store(hass, STORAGE_VERSION, storage_key)
     
     # Load existing data
