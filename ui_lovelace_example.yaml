@@ -7,7 +7,7 @@ cards:
       - type: custom:mushroom-template-card
         primary: 12-Week Rolling ({{ state_attr('sensor.rto_12_week_count', 'average_days_per_week') | default(0) }}/wk)
         secondary: >-
-          {{ states('sensor.rto_12_week_count') }} / {{ state_attr('sensor.rto_12_week_count', 'target') | default(24) }} Days
+          {{ states('sensor.rto_12_week_count') }} / {{ state_attr('sensor.rto_12_week_count', 'target') | int(24) }} Days
         icon: mdi:briefcase-check
         entity: sensor.rto_12_week_count
         icon_color: >-
@@ -21,7 +21,7 @@ cards:
       - type: custom:mushroom-template-card
         primary: Current Quarter ({{ state_attr('sensor.rto_quarter_count', 'average_days_per_week') | default(0) }}/wk)
         secondary: >-
-          {{ states('sensor.rto_quarter_count') }} / {{ state_attr('sensor.rto_quarter_count', 'target') | default(26) }} Days
+          {{ states('sensor.rto_quarter_count') }} / {{ state_attr('sensor.rto_quarter_count', 'target') | int(26) }} Days
         icon: mdi:calendar-check
         entity: sensor.rto_quarter_count
         icon_color: >-
