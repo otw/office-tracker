@@ -90,7 +90,11 @@ class RTO12WeekSensor(RTOBaseSensor):
     def extra_state_attributes(self):
         # Target for 12 weeks is (target_days_per_week * 12)
         target = self._rto_data.get("target_days", 2) * 12
-        return {"target": target}
+        avg = round(self._state / 12.0, 1)
+        return {
+            "target": target,
+            "average_days_per_week": avg
+        }
 
     def _update_state(self):
         today = datetime.now().date()
@@ -134,7 +138,22 @@ class RTOQuarterSensor(RTOBaseSensor):
     def extra_state_attributes(self):
         # Target for ~13 week quarter
         target = self._rto_data.get("target_days", 2) * 13
-        return {"target": target}
+        
+        # Calculate elapsed weeks to get accurate pacing
+        today = datetime.now().date()
+        quarter_month = ((today.month - 1) // 3) * 3 + 1
+        start_date = datetime(today.year, quarter_month, 1).date()
+        elapsed_days = (today - start_date).days + 1
+        elapsed_weeks = elapsed_days / 7.0
+        
+        avg = 0.0
+        if elapsed_weeks > 0:
+            avg = round(self._state / elapsed_weeks, 1)
+            
+        return {
+            "target": target,
+            "average_days_per_week": avg
+        }
 
     def _update_state(self):
         today = datetime.now().date()
