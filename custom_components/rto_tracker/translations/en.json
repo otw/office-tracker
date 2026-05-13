@@ -1,0 +1,17 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Setup RTO Tracker",
+        "description": "Select the person you want to track and the specific office zones they need to visit.",
+        "data": {
+          "entity_id": "Person",
+          "office_zones": "Office Zones"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This person is already being tracked."
+    }
+  }
+}
