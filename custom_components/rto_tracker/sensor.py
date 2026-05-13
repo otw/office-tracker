@@ -90,7 +90,25 @@ class RTO12WeekSensor(RTOBaseSensor):
     def extra_state_attributes(self):
         # Target for 12 weeks is (target_days_per_week * 12)
         target = self._rto_data.get("target_days", 2) * 12
-        avg = round(self._state / 12.0, 1)
+        
+        # Calculate dynamic elapsed weeks for new installations
+        credited_dates = self._get_all_credited_dates()
+        elapsed_weeks = 12.0
+        
+        if credited_dates:
+            earliest_date_str = min(credited_dates)
+            try:
+                earliest_date = datetime.strptime(earliest_date_str, "%Y-%m-%d").date()
+                today = datetime.now().date()
+                days_tracking = (today - earliest_date).days + 1
+                calculated_weeks = days_tracking / 7.0
+                
+                # Use the actual tracked weeks (min 1 to avoid inflation, max 12)
+                elapsed_weeks = max(1.0, min(12.0, calculated_weeks))
+            except ValueError:
+                pass
+
+        avg = round(self._state / elapsed_weeks, 1)
         return {
             "target": target,
             "average_days_per_week": avg
