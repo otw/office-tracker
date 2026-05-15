@@ -15,9 +15,7 @@ A custom integration to automatically track your office days based on location, 
 
 ---
 
-## 🛠 Beginner's Setup Guide
-
-If you are new to Home Assistant, follow these step-by-step instructions to get your RTO Tracker working perfectly!
+## Installation Instructions
 
 ### Step 1: Create Your Office Zone
 Home Assistant needs to know where your office is located on a map.
