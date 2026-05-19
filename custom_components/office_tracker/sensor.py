@@ -12,21 +12,21 @@ from . import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
-    """Set up the RTO sensors from a config entry."""
+    """Set up the Office sensors from a config entry."""
     data = hass.data[DOMAIN][entry.entry_id]
     
     async_add_entities([
-        RTO12WeekSensor(data, entry.entry_id),
-        RTOQuarterSensor(data, entry.entry_id),
-        RTOTimeInOfficeTodaySensor(data, entry.entry_id)
+        Office12WeekSensor(data, entry.entry_id),
+        OfficeQuarterSensor(data, entry.entry_id),
+        OfficeTimeInOfficeTodaySensor(data, entry.entry_id)
     ])
 
-class RTOBaseSensor(SensorEntity):
-    """Base sensor for RTO Tracker."""
+class OfficeBaseSensor(SensorEntity):
+    """Base sensor for Office Tracker."""
     _attr_has_entity_name = True
 
-    def __init__(self, rto_data, entry_id):
-        self._rto_data = rto_data
+    def __init__(self, office_data, entry_id):
+        self._office_data = office_data
         self._entry_id = entry_id
         self._state = 0
         self._attr_native_value = 0
@@ -35,14 +35,14 @@ class RTOBaseSensor(SensorEntity):
     def device_info(self) -> DeviceInfo:
         """Return device information about this entity."""
         return DeviceInfo(
-            identifiers={(DOMAIN, self._rto_data["entity_id"])},
-            name="RTO Tracker",
+            identifiers={(DOMAIN, self._office_data["entity_id"])},
+            name="Office Tracker",
             manufacturer="Home Assistant Community",
         )
 
     async def async_added_to_hass(self):
         """Register callbacks when entity is added."""
-        self._rto_data["listeners"].append(self._update_and_write_state)
+        self._office_data["listeners"].append(self._update_and_write_state)
         
         # Also recalculate every day at midnight
         self.async_on_remove(
@@ -60,17 +60,17 @@ class RTOBaseSensor(SensorEntity):
 
     def _get_all_credited_dates(self):
         """Combine office days, vacation days, and holidays."""
-        office = set(self._rto_data["data"].get("office_days", []))
-        vacation = set(self._rto_data["data"].get("vacation_days", []))
-        holidays = set(self._rto_data["data"].get("holiday_days", []))
+        office = set(self._office_data["data"].get("office_days", []))
+        vacation = set(self._office_data["data"].get("vacation_days", []))
+        holidays = set(self._office_data["data"].get("holiday_days", []))
         return office.union(vacation).union(holidays)
 
-class RTO12WeekSensor(RTOBaseSensor):
-    """Sensor for 12-week RTO count."""
+class Office12WeekSensor(OfficeBaseSensor):
+    """Sensor for 12-week Office count."""
     
     @property
     def name(self):
-        return "RTO 12 Week Count"
+        return "Office 12 Week Count"
         
     @property
     def unique_id(self):
@@ -91,7 +91,7 @@ class RTO12WeekSensor(RTOBaseSensor):
     @property
     def extra_state_attributes(self):
         # Target for 12 weeks is (target_days_per_week * 12)
-        target = self._rto_data.get("target_days", 2) * 12
+        target = self._office_data.get("target_days", 2) * 12
         
         # Calculate dynamic elapsed weeks for new installations
         credited_dates = self._get_all_credited_dates()
@@ -131,12 +131,12 @@ class RTO12WeekSensor(RTOBaseSensor):
                 pass
         self._state = count
 
-class RTOQuarterSensor(RTOBaseSensor):
-    """Sensor for Quarterly RTO count."""
+class OfficeQuarterSensor(OfficeBaseSensor):
+    """Sensor for Quarterly Office count."""
     
     @property
     def name(self):
-        return "RTO Quarter Count"
+        return "Office Quarter Count"
         
     @property
     def unique_id(self):
@@ -157,7 +157,7 @@ class RTOQuarterSensor(RTOBaseSensor):
     @property
     def extra_state_attributes(self):
         # Target for ~13 week quarter
-        target = self._rto_data.get("target_days", 2) * 13
+        target = self._office_data.get("target_days", 2) * 13
         
         # Calculate elapsed weeks to get accurate pacing
         today = datetime.now().date()
@@ -191,12 +191,12 @@ class RTOQuarterSensor(RTOBaseSensor):
                 pass
         self._state = count
 
-class RTOTimeInOfficeTodaySensor(RTOBaseSensor):
+class OfficeTimeInOfficeTodaySensor(OfficeBaseSensor):
     """Sensor for tracking live time in office today."""
 
     @property
     def name(self):
-        return "RTO Time in Office Today"
+        return "Office Time in Office Today"
         
     @property
     def unique_id(self):
@@ -216,14 +216,14 @@ class RTOTimeInOfficeTodaySensor(RTOBaseSensor):
 
     @property
     def extra_state_attributes(self):
-        t_state = self._rto_data["tracker_state"]
+        t_state = self._office_data["tracker_state"]
         return {
-            "required_hours": self._rto_data.get("required_hours", 0.0),
+            "required_hours": self._office_data.get("required_hours", 0.0),
             "is_in_office": t_state.get("is_currently_in_office", False)
         }
 
     def _update_state(self):
-        t_state = self._rto_data["tracker_state"]
+        t_state = self._office_data["tracker_state"]
         today_str = datetime.now().strftime("%Y-%m-%d")
         
         if t_state["current_day"] == today_str:

@@ -1,6 +1,6 @@
 add_vacation_day:
   name: Add Vacation Day
-  description: Adds a specific date as a vacation day to count towards your RTO requirement.
+  description: Adds a specific date as a vacation day to count towards your Office requirement.
   fields:
     date:
       name: Date

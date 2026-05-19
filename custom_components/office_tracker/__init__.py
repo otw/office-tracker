@@ -7,7 +7,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.event import async_track_state_change_event, async_track_time_interval
 from homeassistant.const import CONF_ENTITY_ID, Platform
 
-DOMAIN = "rto_tracker"
+DOMAIN = "office_tracker"
 _LOGGER = logging.getLogger(__name__)
 
 CONF_OFFICE_ZONES = "office_zones"
@@ -16,7 +16,7 @@ PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.CALENDAR]
 STORAGE_VERSION = 1
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up RTO Tracker from a config entry."""
+    """Set up Office Tracker from a config entry."""
     
     entity_id = entry.data[CONF_ENTITY_ID]
     office_zones = entry.data[CONF_OFFICE_ZONES]

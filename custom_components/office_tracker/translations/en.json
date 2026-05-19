@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Setup RTO Tracker",
-        "description": "Configure your Return To Office tracking parameters. Optional: select a Holiday Calendar to automatically credit public holidays.",
+        "title": "Setup Office Tracker",
+        "description": "Configure your Office Tracker tracking parameters. Optional: select a Holiday Calendar to automatically credit public holidays.",
         "data": {
           "entity_id": "Person",
           "office_zones": "Office Zones",

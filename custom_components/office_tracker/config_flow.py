@@ -5,8 +5,8 @@ from homeassistant.const import CONF_ENTITY_ID
 
 from . import DOMAIN, CONF_OFFICE_ZONES
 
-class RTOTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for RTO Tracker."""
+class OfficeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Office Tracker."""
 
     VERSION = 1
 
@@ -19,7 +19,7 @@ class RTOTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._abort_if_unique_id_configured()
 
             return self.async_create_entry(
-                title=f"RTO Tracker", 
+                title=f"Office Tracker", 
                 data=user_input
             )
 

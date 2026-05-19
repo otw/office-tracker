@@ -12,21 +12,21 @@ from . import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
-    """Set up the RTO calendar from a config entry."""
+    """Set up the Office calendar from a config entry."""
     data = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([RTOCalendar(data, entry.entry_id)])
+    async_add_entities([OfficeCalendar(data, entry.entry_id)])
 
-class RTOCalendar(CalendarEntity):
-    """Calendar entity for RTO Tracker."""
+class OfficeCalendar(CalendarEntity):
+    """Calendar entity for Office Tracker."""
     _attr_has_entity_name = True
 
-    def __init__(self, rto_data, entry_id):
-        self._rto_data = rto_data
+    def __init__(self, office_data, entry_id):
+        self._office_data = office_data
         self._entry_id = entry_id
 
     @property
     def name(self):
-        return "RTO Tracker Calendar"
+        return "Office Tracker Calendar"
         
     @property
     def unique_id(self):
@@ -36,8 +36,8 @@ class RTOCalendar(CalendarEntity):
     def device_info(self) -> DeviceInfo:
         """Return device information about this entity."""
         return DeviceInfo(
-            identifiers={(DOMAIN, self._rto_data["entity_id"])},
-            name="RTO Tracker",
+            identifiers={(DOMAIN, self._office_data["entity_id"])},
+            name="Office Tracker",
             manufacturer="Home Assistant Community",
         )
 
@@ -47,7 +47,7 @@ class RTOCalendar(CalendarEntity):
         today = datetime.now().strftime("%Y-%m-%d")
         
         for key, summary in [("office_days", "Office Day"), ("vacation_days", "Vacation Day"), ("holiday_days", "Holiday")]:
-            if today in self._rto_data["data"].get(key, []):
+            if today in self._office_data["data"].get(key, []):
                 date_obj = datetime.strptime(today, "%Y-%m-%d").date()
                 return CalendarEvent(
                     summary=summary,
@@ -73,7 +73,7 @@ class RTOCalendar(CalendarEntity):
         }
         
         for key, summary in categories.items():
-            for date_str in self._rto_data["data"].get(key, []):
+            for date_str in self._office_data["data"].get(key, []):
                 try:
                     date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
                     if start_d <= date_obj <= end_d:
