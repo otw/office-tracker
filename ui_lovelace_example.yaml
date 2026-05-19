@@ -5,28 +5,28 @@ cards:
   - type: horizontal-stack
     cards:
       - type: custom:mushroom-template-card
-        primary: 12-Week Rolling ({{ state_attr('sensor.office_12_week_count', 'average_days_per_week') | default(0) }}/wk)
+        primary: 12-Week Rolling ({{ state_attr('sensor.office_tracker_office_12_week_count', 'average_days_per_week') | default(0) }}/wk)
         secondary: >-
-          {{ states('sensor.office_12_week_count') }} / {{ state_attr('sensor.office_12_week_count', 'target') | int(24) }} Days
+          {{ states('sensor.office_tracker_office_12_week_count') }} / {{ state_attr('sensor.office_tracker_office_12_week_count', 'target') | int(24) }} Days
         icon: mdi:briefcase-check
-        entity: sensor.office_12_week_count
+        entity: sensor.office_tracker_office_12_week_count
         icon_color: >-
-          {% set count = states('sensor.office_12_week_count') | int(0) %}
-          {% set target = state_attr('sensor.office_12_week_count', 'target') | int(24) %}
+          {% set count = states('sensor.office_tracker_office_12_week_count') | int(0) %}
+          {% set target = state_attr('sensor.office_tracker_office_12_week_count', 'target') | int(24) %}
           {% if count >= target %} green
           {% elif count >= (target * 0.75) %} orange
           {% else %} red
           {% endif %}
         layout: vertical
       - type: custom:mushroom-template-card
-        primary: Current Quarter ({{ state_attr('sensor.office_quarter_count', 'average_days_per_week') | default(0) }}/wk)
+        primary: Current Quarter ({{ state_attr('sensor.office_tracker_office_quarter_count', 'average_days_per_week') | default(0) }}/wk)
         secondary: >-
-          {{ states('sensor.office_quarter_count') }} / {{ state_attr('sensor.office_quarter_count', 'target') | int(26) }} Days
+          {{ states('sensor.office_tracker_office_quarter_count') }} / {{ state_attr('sensor.office_tracker_office_quarter_count', 'target') | int(26) }} Days
         icon: mdi:calendar-check
-        entity: sensor.office_quarter_count
+        entity: sensor.office_tracker_office_quarter_count
         icon_color: >-
-          {% set count = states('sensor.office_quarter_count') | int(0) %}
-          {% set target = state_attr('sensor.office_quarter_count', 'target') | int(26) %}
+          {% set count = states('sensor.office_tracker_office_quarter_count') | int(0) %}
+          {% set target = state_attr('sensor.office_tracker_office_quarter_count', 'target') | int(26) %}
           {% if count >= target %} green
           {% elif count >= (target * 0.75) %} orange
           {% else %} red
@@ -35,15 +35,15 @@ cards:
   - type: custom:mushroom-template-card
     primary: Today's Office Time
     secondary: >-
-      {{ states('sensor.office_time_in_office_today') }} / {{ state_attr('sensor.office_time_in_office_today', 'required_hours') }} Hours
+      {{ states('sensor.office_tracker_office_time_in_office_today') }} / {{ state_attr('sensor.office_tracker_office_time_in_office_today', 'required_hours') }} Hours
     icon: mdi:timer-sand
-    entity: sensor.office_time_in_office_today
+    entity: sensor.office_tracker_office_time_in_office_today
     icon_color: >-
-      {% set hrs = states('sensor.office_time_in_office_today') | float(0) %}
-      {% set req = state_attr('sensor.office_time_in_office_today', 'required_hours') | float(0) %}
+      {% set hrs = states('sensor.office_tracker_office_time_in_office_today') | float(0) %}
+      {% set req = state_attr('sensor.office_tracker_office_time_in_office_today', 'required_hours') | float(0) %}
       {% if req == 0 %} green
       {% elif hrs >= req %} green
-      {% elif state_attr('sensor.office_time_in_office_today', 'is_in_office') %} orange
+      {% elif state_attr('sensor.office_tracker_office_time_in_office_today', 'is_in_office') %} orange
       {% else %} grey
       {% endif %}
   - type: horizontal-stack
