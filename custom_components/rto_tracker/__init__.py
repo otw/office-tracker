@@ -37,19 +37,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if key not in data:
             data[key] = []
 
-    # New tracker state for cumulative time
-    tracker_state = {
-        "current_day": datetime.now().strftime("%Y-%m-%d"),
-        "daily_seconds": 0.0,
-        "last_entry_ts": None,
-        "is_currently_in_office": False
-    }
+    # Persist tracker state for cumulative time across HA restarts
+    if "tracker_state" not in data:
+        data["tracker_state"] = {
+            "current_day": datetime.now().strftime("%Y-%m-%d"),
+            "daily_seconds": 0.0,
+            "last_entry_ts": None,
+            "is_currently_in_office": False
+        }
+    
+    # If the day rolled over while HA was offline, reset the state
+    if data["tracker_state"]["current_day"] != datetime.now().strftime("%Y-%m-%d"):
+        data["tracker_state"]["current_day"] = datetime.now().strftime("%Y-%m-%d")
+        data["tracker_state"]["daily_seconds"] = 0.0
+        data["tracker_state"]["last_entry_ts"] = None
+        data["tracker_state"]["is_currently_in_office"] = False
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
         "store": store,
         "data": data,
-        "tracker_state": tracker_state,
+        "tracker_state": data["tracker_state"],
         "entity_id": entity_id,
         "office_zones": office_zones,
         "required_hours": required_hours,
@@ -99,6 +107,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             duration = now_ts - t_state["last_entry_ts"]
             t_state["daily_seconds"] += duration
             t_state["last_entry_ts"] = now_ts # reset anchor to now
+            hass.async_create_task(async_save_data())
             
         # Notify listeners so Live Sensor updates
         for listener in hass.data[DOMAIN][entry.entry_id]["listeners"]:
@@ -138,6 +147,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # Just entered office
             t_state["is_currently_in_office"] = True
             t_state["last_entry_ts"] = datetime.now().timestamp()
+            hass.async_create_task(async_save_data())
             # If threshold is 0, credit immediately
             check_office_time()
             
@@ -146,6 +156,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             check_office_time()
             t_state["is_currently_in_office"] = False
             t_state["last_entry_ts"] = None
+            hass.async_create_task(async_save_data())
             for listener in hass.data[DOMAIN][entry.entry_id]["listeners"]:
                 listener()
 
